@@ -84,20 +84,24 @@ def process_mzmls(fns, mz_dev, min_roi, max_zeros, min_peak_length, model_dir):
     table = ResultTable(fns, features)
     table.fill_zeros(mz_dev)
     df = table_to_pandas( table )
+    df = df.rename(columns={'mz': 'mz_mean', 'rtmin': 'rt_min', 'rtmax': 'rt_max'})    
     return df
 
 
-def to_peaklist(df):
+def po_table_to_mint_peaklist(df, unit='minutes'):
     df = df.copy()
     df = df.rename(columns={'mz': 'mz_mean', 'rtmin': 'rt_min', 'rtmax': 'rt_max'})
-    df['rt_min'] = df['rt_min']*60.
-    df['rt_max'] = df['rt_max']*60.
     df['rt'] = df[['rt_min', 'rt_max']].mean(axis=1)
-    df['rt'] =  df['rt']*60.
+    if unit == 'minutes':
+        df['rt_min'] = df['rt_min']*60.
+        df['rt_max'] = df['rt_max']*60.
+        df['rt'] =  df['rt']*60.
     df['peak_label'] = df.mz_mean.apply(lambda x: str(np.round(x, 3))) + '@' + df.rt.apply(lambda x: str(np.round(x, 2)))
     df['mz_width'] = 10 
     df = df.set_index(['peak_label', 'mz_mean', 'mz_width', 'rt', 'rt_min', 'rt_max']).reset_index()
     return df
+
+
 
 
 class PeakOnly():
@@ -140,6 +144,6 @@ class PeakOnly():
             urllib.request.urlretrieve(url, fn_rnn)
 
 
-    def get_mint_peaklist(self):
-        return to_peaklist(self._results)
+    def as_peaklist(self):
+        return po_table_to_mint_peaklist(self._results)
 
