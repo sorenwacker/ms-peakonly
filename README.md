@@ -1,4 +1,4 @@
-Modified code from [](https://github.com/Arseha/peakonly)
+Modified code from [Arseha](https://github.com/Arseha/peakonly)
 
 
 # High-level API for PeakOnly for simplified use
