@@ -19,7 +19,7 @@ config = {
     'download_url': 'https://github.com/soerendip/ms_peak_only',
     'author_email': 'swacker@ucalgary.ca',
     'version': '0.0.1',
-    'install_requires': [],
+    'install_requires': install_requires,
     'packages': find_packages(),
     'scripts': [],
     'name': 'ms_peak_only'
