@@ -13,10 +13,10 @@ install_requires = [
 
 
 config = {
-    'description': 'Installable python library for peak detection in mzML files.',
+    'description': 'High level API for peakonly (https://github.com/Arseha/peakonly)',
     'author': 'Soren Wacker',
-    'url': 'https://github.com/soerendip',
-    'download_url': 'https://github.com/soerendip/ms_peak_only',
+    'url': 'https://github.com/sorenwacker',
+    'download_url': 'https://github.com/sorenwacker/ms_peak_only',
     'author_email': 'swacker@ucalgary.ca',
     'version': '0.0.1',
     'install_requires': install_requires,
