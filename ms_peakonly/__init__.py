@@ -16,6 +16,50 @@ from .models.cnn_classifier import Classifier
 from .models.cnn_segmentator import Segmentator
 
 
+class PeakOnly():
+
+    def __init__(self, mz_deviation=0.01, min_roi_length=15, max_zeros=3, min_peak_length=8, model_dir=None):
+        self._mz_dev,  self._min_roi, self._max_zeros, self._min_peak_length, self._model_dir = \
+            mz_deviation, min_roi_length, max_zeros, min_peak_length, model_dir
+        self.results = None
+        
+    def process(self, fns):
+        self.maybe_get_models()
+        self.results = process_mzmls(fns, 
+                    mz_dev=self._mz_dev,  
+                    min_roi=self._min_roi, 
+                    max_zeros=self._max_zeros, 
+                    min_peak_length=self._min_peak_length,
+                    model_dir=self._model_dir)
+        return self.results
+
+    def maybe_get_models(self):
+        path = P(self._model_dir)
+
+        if not path.is_dir():
+            os.makedirs(path)
+
+        fn_clf = path/'Classifier.pt'
+        fn_seg = path/'Segmentator.pt'
+        fn_rnn = path/'RecurrentCNN.pt'
+
+        if not fn_clf.is_file():
+        # Classifier
+            url = 'https://getfile.dokpub.com/yandex/get/https://yadi.sk/d/rAhl2u7WeIUGYA'
+            urllib.request.urlretrieve(url, fn_clf)
+        # Segmentator
+        if not fn_seg.is_file():
+            url = 'https://getfile.dokpub.com/yandex/get/https://yadi.sk/d/9m5e3C0q0HKbuw'
+            urllib.request.urlretrieve(url, fn_seg)
+        # RecurrentCNN
+        if not fn_rnn.is_file():
+            url = 'https://getfile.dokpub.com/yandex/get/https://yadi.sk/d/1IrXRWDWhANqKw'
+            urllib.request.urlretrieve(url, fn_rnn)
+
+    def as_mint_targets(self):
+        return po_table_to_mint_peaklist(self.results)
+
+
 def table_to_pandas(table):
     output = io.StringIO()
     table.to_csv(output)
@@ -100,50 +144,3 @@ def po_table_to_mint_peaklist(df, unit='minutes'):
     df['mz_width'] = 10 
     df = df.set_index(['peak_label', 'mz_mean', 'mz_width', 'rt', 'rt_min', 'rt_max']).reset_index()
     return df
-
-
-
-
-class PeakOnly():
-
-    def __init__(self, mz_deviation=0.01, min_roi_length=15, max_zeros=3, min_peak_length=8, model_dir=None):
-        self._mz_dev,  self._min_roi, self._max_zeros, self._min_peak_length, self._model_dir = \
-            mz_deviation, min_roi_length, max_zeros, min_peak_length, model_dir
-
-    def process(self, fns):
-        self.maybe_get_models()
-        self._results = process_mzmls(fns, 
-                    mz_dev=self._mz_dev,  
-                    min_roi=self._min_roi, 
-                    max_zeros=self._max_zeros, 
-                    min_peak_length=self._min_peak_length,
-                    model_dir=self._model_dir)
-        return self._results
-
-    def maybe_get_models(self):
-        path = P(self._model_dir)
-
-        if not path.is_dir():
-            os.makedirs(path)
-
-        fn_clf = path/'Classifier.pt'
-        fn_seg = path/'Segmentator.pt'
-        fn_rnn = path/'RecurrentCNN.pt'
-
-        if not fn_clf.is_file():
-        # Classifier
-            url = 'https://getfile.dokpub.com/yandex/get/https://yadi.sk/d/rAhl2u7WeIUGYA'
-            urllib.request.urlretrieve(url, fn_clf)
-        # Segmentator
-        if not fn_seg.is_file():
-            url = 'https://getfile.dokpub.com/yandex/get/https://yadi.sk/d/9m5e3C0q0HKbuw'
-            urllib.request.urlretrieve(url, fn_seg)
-        # RecurrentCNN
-        if not fn_rnn.is_file():
-            url = 'https://getfile.dokpub.com/yandex/get/https://yadi.sk/d/1IrXRWDWhANqKw'
-            urllib.request.urlretrieve(url, fn_rnn)
-
-
-    def as_peaklist(self):
-        return po_table_to_mint_peaklist(self._results)
-

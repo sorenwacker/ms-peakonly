@@ -1,8 +1,10 @@
 import json
 import pymzml
+import logging
 import numpy as np
 from tqdm import tqdm
 from bintrees import FastAVLTree
+from xml.etree.ElementTree import ParseError
 
 
 def construct_ROI(roi_dict):
@@ -79,7 +81,12 @@ def get_ROIs(path, delta_mz=0.005, required_points=15, dropped_points=3, progres
     :return: ROIs - a list of ROI objects found in current file
     '''
     # read all scans in mzML file
-    run = pymzml.run.Reader(path)
+    
+    try: 
+        run = pymzml.run.Reader(path)
+    except ParseError as e:
+        logging.warning(f'ParseError: Could not parse {path}\n{e}')
+        return None
     scans = []
     for scan in run:
         if scan.ms_level == 1:
